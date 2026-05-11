@@ -1,0 +1,48 @@
+{
+    "name": "opillion/easy-stack-ntfy-bundle",
+    "description": "Symfony bundle for ntfy integration in Easy Stack applications.",
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.4",
+        "guzzlehttp/guzzle": "7.*",
+        "doctrine/doctrine-fixtures-bundle": "*",
+        "easycorp/easyadmin-bundle": "v4.*",
+        "symfony/console": "^8.0",
+        "symfony/config": "^8.0",
+        "symfony/dependency-injection": "^8.0",
+        "symfony/framework-bundle": "^8.0",
+        "symfony/http-kernel": "^8.0",
+        "symfony/routing": "^8.0",
+        "symfony/translation": "^8.0",
+        "symfony/twig-bundle": "^8.0",
+        "symfony/yaml": "^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Opillion\\EasyStack\\NtfyBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Opillion\\EasyStack\\NtfyBundle\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "8.*"
+        }
+    }
+}

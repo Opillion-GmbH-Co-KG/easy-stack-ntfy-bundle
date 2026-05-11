@@ -1,0 +1,209 @@
+{% extends 'bundles/EasyAdminBundle/default/layout.html.twig' %}
+
+{% import _self as chat %}
+
+{% block content_title %}
+    {{ 'ntfy_chat.title'|trans }}
+{% endblock %}
+
+{% macro textarea(id = 'chat-input', rows = 2) -%}
+    <textarea
+            class="chat-bot"
+            id="{{ id }}"
+            placeholder="Chat …"
+            rows="{{ rows }}"
+            required
+    ></textarea>
+{%- endmacro %}
+
+{% block main %}
+    <div class="chat-wrapper container">
+        <div class="chat-banner">
+            <strong>{{ 'chat_banner.notice_label'|trans }}</strong>
+            {{ 'chat_banner.chat_bot.line1'|trans }}
+            {{ 'chat_banner.chat_bot.line2'|trans }}
+        </div>
+
+        <div class="chat-area">
+            <div id="messages"></div>
+
+            <form id="chat-form" autocomplete="off">
+                {{ chat.textarea() }}
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .chat-wrapper {
+            margin-top: 2rem;
+        }
+        .chat-banner {
+            background-color: #0d6efd;
+            color: #fff;
+            padding: 1rem 1.5rem;
+            border-radius: .5rem;
+            margin-bottom: 1.5rem;
+            width: 99.8%;
+            transition: opacity .4s ease, transform .4s ease;
+        }
+        .chat-banner--fade-out {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        .chat-area {
+            border-radius: 10px;
+            padding: 0.2em;
+        }
+        .chat-bot {
+            margin-top: 2em;
+            width: 100%;
+            padding: .6rem;
+            border: 1px solid #ccc;
+            border-radius: .3rem;
+            resize: vertical;
+        }
+        #messages {
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: .15rem;
+        }
+        .chat-bubble {
+            align-self: flex-end;
+            background: #007bff;
+            color: #fff;
+            padding: .4rem .8rem;
+            border-radius: 1rem 1rem 0 1rem;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .chat-bubble.remote {
+            align-self: flex-start;
+            background: #e5e5e5;
+            color: #000;
+            border-radius: 1rem 1rem 1rem 0;
+        }
+    </style>
+
+    <script>
+        (() => {
+            const user  = "{{ app.user ? app.user.name|e('js') : 'guest' }}";
+            const topic = "{{ ntfyChatTopic|e('js') }}";
+            const token = "{{ ntfyToken|e('js') }}";
+            const pass  = "{{ ntfyZipProtection|e('js') }}";
+            const base  = "{{ ntfyHost|trim('/')|e('js') }}";
+
+            const urlPub = `${base}/${topic}`;
+            const auth   = btoa(`Bearer ${token}`).replace(/=+$/,'');
+            const urlSub = `${base}/${topic}/sse?auth=${auth}`;
+
+            const form  = document.getElementById('chat-form');
+            const input = document.getElementById('chat-input');
+            const msgs  = document.getElementById('messages');
+
+            const enc  = new TextEncoder();
+            const dec  = new TextDecoder();
+            const iter = 300000;
+
+            const deriveKey = async s => {
+                const bk = await crypto.subtle.importKey('raw', enc.encode(pass), {name:'PBKDF2'}, false, ['deriveKey']);
+                return crypto.subtle.deriveKey(
+                    {name:'PBKDF2', salt:s, iterations:iter, hash:'SHA-256'},
+                    bk,
+                    {name:'AES-GCM', length:256},
+                    false,
+                    ['encrypt','decrypt']
+                );
+            };
+
+            const encrypt = async t => {
+                const salt = crypto.getRandomValues(new Uint8Array(16));
+                const iv   = crypto.getRandomValues(new Uint8Array(12));
+                const key  = await deriveKey(salt);
+                const ct   = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(t));
+                return btoa(String.fromCharCode(...salt, ...iv, ...new Uint8Array(ct)));
+            };
+
+            const decrypt = async b => {
+                const raw  = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+                const salt = raw.slice(0, 16);
+                const iv   = raw.slice(16, 28);
+                const ct   = raw.slice(28);
+                const key  = await deriveKey(salt);
+                const pt   = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, ct);
+                return dec.decode(pt);
+            };
+
+            const add = (t, self = false) => {
+                const d = document.createElement('div');
+                d.className = 'chat-bubble' + (self ? '' : ' remote');
+                d.textContent = t;
+                msgs.appendChild(d);
+                msgs.scrollTop = msgs.scrollHeight;
+            };
+
+            const isSelf = tags => Array.isArray(tags) && tags.includes(user);
+
+            input.addEventListener('input', () => {
+                input.style.height = 'auto';
+                input.style.height = `${input.scrollHeight}px`;
+            });
+
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    form.requestSubmit();
+                }
+                if (e.key === 'Enter' && e.shiftKey) e.stopPropagation();
+            });
+
+            form.addEventListener('submit', async e => {
+                e.preventDefault();
+                const rawTxt = input.value.trim();
+                if (!rawTxt) return;
+
+                const msg = `${user}: ${rawTxt}`;
+                add(msg, true);
+                input.value = '';
+
+                const body = await encrypt(msg);
+                await fetch(urlPub, {
+                    method:'POST',
+                    body,
+                    headers:{ Authorization:`Bearer ${token}`, Tags:user }
+                });
+            });
+
+            const loadHistory = async () => {
+                try {
+                    const r = await fetch(`${urlPub}/json?since=0`, { headers:{ Authorization:`Bearer ${token}` } });
+                    if (!r.ok) return;
+                    const lines = (await r.text()).trim().split('\n');
+                    for (const line of lines) {
+                        if (!line) continue;
+                        const j = JSON.parse(line);
+                        if (j.event !== 'message') continue;
+                        const selfMsg = isSelf(j.tags);
+                        const text = await decrypt(j.message);
+                        add(text, selfMsg);
+                    }
+                } catch {}
+            };
+
+            loadHistory();
+
+            const es = new EventSource(urlSub);
+            es.onmessage = async ev => {
+                try {
+                    const j = JSON.parse(ev.data);
+                    if (j.event === 'message' && !isSelf(j.tags)) {
+                        const text = await decrypt(j.message);
+                        add(text);
+                    }
+                } catch {}
+            };
+        })();
+    </script>
+{% endblock %}

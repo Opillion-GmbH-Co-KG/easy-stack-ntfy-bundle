@@ -1,0 +1,4 @@
+ntfy_chat.title: "NTFY Chat"
+chat_banner.notice_label: "Hinweis:"
+chat_banner.chat_bot.line1: "Die Nachrichten werden direkt an das in der Umgebung konfigurierte NTFY Topic gesendet."
+chat_banner.chat_bot.line2: "Achtung: Die Verbindung zur Chatbox erfordert die Variablen NTFY_HOST, NTFY_CHAT, NTFY_TOKEN und NTFY_ZIP_PROTECTION."

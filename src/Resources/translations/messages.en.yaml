@@ -1,0 +1,4 @@
+ntfy_chat.title: "NTFY Chat"
+chat_banner.notice_label: "Notice:"
+chat_banner.chat_bot.line1: "Messages are sent directly to the NTFY topic configured by environment."
+chat_banner.chat_bot.line2: "Make sure NTFY_HOST, NTFY_CHAT, NTFY_TOKEN and NTFY_ZIP_PROTECTION are configured."

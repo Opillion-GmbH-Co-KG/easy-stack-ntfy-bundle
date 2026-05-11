@@ -1,0 +1,6 @@
+easy_stack_ntfy_chat:
+    path: /{_locale}/admin/ntfy/chat
+    methods: GET|POST|PATCH
+    defaults: { _controller: Opillion\EasyStack\NtfyBundle\Controller\ChatController::index }
+    requirements:
+        _locale: '%app_locales%'

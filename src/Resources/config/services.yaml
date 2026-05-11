@@ -1,0 +1,30 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+        bind:
+            ?string $ntfyHost: '%env(default::NTFY_HOST)%'
+            ?string $ntfyToken: '%env(default::NTFY_TOKEN)%'
+            ?string $ntfyChatTopic: '%env(default::NTFY_CHAT)%'
+            ?string $ntfyZipProtection: '%env(default::NTFY_ZIP_PROTECTION)%'
+
+    Opillion\EasyStack\NtfyBundle\:
+        resource: ../../
+        exclude:
+            - ../../DependencyInjection/
+            - ../../Resources/
+            - ../../DataHolder/DataFixtures/
+            - ../../EasyStackNtfyBundle.php
+
+    Opillion\EasyStack\NtfyBundle\Controller\:
+        resource: ../../Controller
+        tags: [controller.service_arguments]
+
+    Opillion\EasyStack\NtfyBundle\System\EasyAdmin\AdminMenuProvider:
+        tags:
+            - { name: easy_stack.admin_menu_provider, priority: 120 }
+
+    Opillion\EasyStack\NtfyBundle\System\Routing\RouteProvider:
+        tags:
+            - { name: easy_stack.route_provider, priority: 120 }
