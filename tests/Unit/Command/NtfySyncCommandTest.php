@@ -46,7 +46,7 @@ final class NtfySyncCommandTest extends TestCase
             ->method('subscribe')
             ->with(
                 $this->equalTo('chat-topic'),
-                $this->isType('callable'),
+                $this->callback(static fn (callable $callback): bool => true),
                 $this->equalTo(['since' => 'all', 'poll' => 1])
             )
             ->willReturnCallback(function (string $_topic, callable $handler): void {
