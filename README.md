@@ -33,9 +33,14 @@ return [
 
 ## Environment
 
-To expose the chat menu and enable live chat, set:
+To expose the chat menu and enable ntfy sync features, set:
 
 - `NTFY_HOST`
 - `NTFY_CHAT`
 - `NTFY_TOKEN`
 - `NTFY_ZIP_PROTECTION`
+- `NTFY_TOPIC`
+
+Optional topic helpers:
+
+- `NTFY_TOPIC_WEB`
