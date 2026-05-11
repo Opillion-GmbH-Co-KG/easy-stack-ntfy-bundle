@@ -7,6 +7,8 @@ Features:
 - EasyAdmin menu entry for NTFY chat.
 - Route and controller to serve the chat interface.
 - Twig template for the chat view.
+- Reusable contact popup asset for websites.
+- Reusable Docker examples for running a local ntfy service.
 - NTFY commands:
   - `ntfy:send`
   - `ntfy:sync`
@@ -21,6 +23,12 @@ The chat menu item is only shown when required environment variables are present
 
 ```bash
 composer require opillion/easy-stack-ntfy-bundle
+```
+
+If you need bundle assets in a Symfony app:
+
+```bash
+php bin/console assets:install public
 ```
 
 If not using Symfony Flex, enable the bundle in `config/bundles.php`:
@@ -44,3 +52,22 @@ To expose the chat menu and enable ntfy sync features, set:
 Optional topic helpers:
 
 - `NTFY_TOPIC_WEB`
+
+## Reusable Resources
+
+The bundle also ships reusable assets and examples:
+
+- Contact popup script: `src/Resources/public/js/contact-popup.js`
+- Docker examples: `resources/docker/`
+
+For static pages you can wire the popup like this after publishing assets:
+
+```html
+<script
+  src="/bundles/easystackntfy/js/contact-popup.js"
+  data-ntfy-topic="easy-stack-web-contact"
+  data-ntfy-host="https://ntfy.sh"
+  data-ntfy-title="Neue Kontaktanfrage"
+  data-ntfy-tags="contact,website"
+></script>
+```

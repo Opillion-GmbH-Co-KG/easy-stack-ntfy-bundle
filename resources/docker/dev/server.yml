@@ -1,0 +1,24 @@
+# Public base URL of your instance
+base-url: "https://push.example.com"
+
+# Listener behind a reverse proxy
+listen-http: ":2586"
+behind-proxy: true
+
+# Persistent cache and attachments
+cache-file: "/var/cache/ntfy/cache.db"
+attachment-cache-dir: "/var/cache/ntfy/attachments"
+
+# Authentication
+auth-file: "/var/lib/ntfy/user.db"
+auth-default-access: "deny-all"
+
+# Optional limits
+attachment-total-size-limit: "1G"
+attachment-file-size-limit: "20M"
+
+# Optional forwarding and Firebase examples
+# upstream-base-url: "https://ntfy.sh"
+# firebase-key-file: "/etc/ntfy/firebase.json"
+
+log-level: "INFO"
