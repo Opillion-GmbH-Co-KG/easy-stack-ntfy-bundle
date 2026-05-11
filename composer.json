@@ -8,7 +8,6 @@
     "require": {
         "php": ">=8.4",
         "guzzlehttp/guzzle": "7.*",
-        "doctrine/doctrine-fixtures-bundle": "*",
         "easycorp/easyadmin-bundle": "v4.*",
         "symfony/console": "^8.0",
         "symfony/config": "^8.0",
@@ -22,6 +21,9 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^13.0"
+    },
+    "suggest": {
+        "doctrine/doctrine-fixtures-bundle": "Enable optional fixture loading for scheduled ntfy jobs."
     },
     "autoload": {
         "psr-4": {

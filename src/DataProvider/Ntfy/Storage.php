@@ -18,7 +18,7 @@ use function preg_replace;
 use function sprintf;
 use function ltrim;
 
-final class Storage
+class Storage
 {
     public function __construct(
         private readonly ?string $ntfyHost,
