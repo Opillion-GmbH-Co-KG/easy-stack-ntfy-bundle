@@ -1,0 +1,25 @@
+services:
+
+  ntfy:
+    hostname: ntfy
+    container_name: ntfy
+    build:
+      context: resources/docker/dev/
+      dockerfile: ntfy.Dockerfile
+      args:
+        DOCKER_REPO_NAME: ${DOCKER_REPO_NAME}
+        BASE_IMAGE_TAG: ${BASE_IMAGE_TAG}
+        DEV_IMAGE_TAG: ${DEV_IMAGE_TAG}
+        PROD_IMAGE_TAG: ${PROD_IMAGE_TAG}
+    restart: unless-stopped
+    ports:
+      - "${NTFY_EXTERNAL_PORT}:${NTFY_INTERNAL_PORT}"
+    volumes:
+      - ${NTFY_DATA_PATH:-ntfy-data}/cache:/var/cache/ntfy
+      - ${NTFY_DATA_PATH:-ntfy-data}/etc/user.db:/etc/ntfy/user.db
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:${NTFY_INTERNAL_PORT}/v1/health || exit 1"]
+      interval: 16s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
