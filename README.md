@@ -41,17 +41,60 @@ return [
 
 ## Environment
 
-To expose the chat menu and enable ntfy sync features, set:
+The bundle binds the ntfy service values from environment variables. The chat route and EasyAdmin menu are removed when one of the guarded chat variables is missing or empty.
 
-- `NTFY_HOST`
-- `NTFY_CHAT`
-- `NTFY_TOKEN`
-- `NTFY_ZIP_PROTECTION`
-- `NTFY_TOPIC`
+| Variable | Required for | Notes |
+| --- | --- | --- |
+| `NTFY_HOST` | All ntfy requests, chat route, chat menu | Base URL of the ntfy server, for example `https://ntfy.sh`. |
+| `NTFY_TOKEN` | Authenticated requests, chat route, chat menu | Sent as `Authorization: Bearer ...` when present. The current route/menu guard expects a non-empty value. |
+| `NTFY_CHAT` | Chat route, chat menu, `ntfy:sync` | Chat topic shown in the bundled EasyAdmin chat UI. |
+| `NTFY_ZIP_PROTECTION` | Chat route, chat menu, `ntfy:zip-and-send` | Used as ZIP password when non-empty. The current route/menu guard expects a value. |
+| `NTFY_TOPIC` | `ntfy:send`, `ntfy:sync` | Default topic for CLI sends and one of the topics polled by sync. |
+| `NTFY_TOPIC_WEB` | `ntfy:sync`, static contact popup | Optional extra topic for website/contact events. |
 
-Optional topic helpers:
+The localized chat route also expects the host application's `%app_locales%` parameter:
 
-- `NTFY_TOPIC_WEB`
+```yaml
+parameters:
+    app_locales: 'de|en'
+```
+
+## Commands
+
+Send a plain text message:
+
+```bash
+bin/console ntfy:send "Hello from Easy Stack"
+bin/console ntfy:send "Hello from Easy Stack" --topic=ops
+```
+
+Synchronize all configured topics (`NTFY_TOPIC`, `NTFY_TOPIC_WEB`, `NTFY_CHAT`):
+
+```bash
+bin/console ntfy:sync
+```
+
+Zip one file and upload it to ntfy. The optional topic argument defaults to `dumps`; `--title` controls the ntfy upload title.
+
+```bash
+bin/console ntfy:zip-and-send var/backups/dump.sql dumps --title="Database dump"
+```
+
+## Symfony Integration
+
+The bundle extension prepends:
+
+- Twig namespace `@EasyStackNtfyBundle`.
+- Translation path `src/Resources/translations`.
+
+The service file binds:
+
+- `?string $ntfyHost` from `NTFY_HOST`.
+- `?string $ntfyToken` from `NTFY_TOKEN`.
+- `?string $ntfyChatTopic` from `NTFY_CHAT`.
+- `?string $ntfyZipProtection` from `NTFY_ZIP_PROTECTION`.
+
+If DoctrineFixturesBundle is installed, the bundle registers fixtures for the periodic `ntfy:sync` and `ntfy:zip-and-send` CronJobs.
 
 ## Reusable Resources
 
