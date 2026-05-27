@@ -14,7 +14,7 @@ final class NtfyZipAndSendCommandTest extends TestCase
 {
     public function testReturnsFailureWhenSourceFileIsMissing(): void
     {
-        $storage = $this->createMock(Storage::class);
+        $storage = $this->createStub(Storage::class);
         $command = new NtfyZipAndSendCommand($storage);
         $tester = new CommandTester($command);
 

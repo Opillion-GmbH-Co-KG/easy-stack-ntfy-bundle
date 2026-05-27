@@ -20,7 +20,7 @@ final class NtfySyncCommandTest extends TestCase
         putenv('NTFY_TOPIC');
         putenv('NTFY_TOPIC_WEB');
 
-        $storage = $this->createMock(Storage::class);
+        $storage = $this->createStub(Storage::class);
         $command = new NtfySyncCommand($storage);
         $tester = new CommandTester($command);
 

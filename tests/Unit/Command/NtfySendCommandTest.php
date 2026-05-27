@@ -22,7 +22,7 @@ final class NtfySendCommandTest extends TestCase
     {
         putenv('NTFY_TOPIC');
 
-        $ntfy = $this->createMock(Storage::class);
+        $ntfy = $this->createStub(Storage::class);
         $command = new NtfySendCommand($ntfy);
         $tester = new CommandTester($command);
 
