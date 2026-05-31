@@ -1,5 +1,25 @@
 # Easy Stack Ntfy Bundle
 
+
+
+
+
+
+## Stack
+- Symfony 8
+- PHP 8.4+
+## Stack
+- Symfony 8
+- PHP 8.4+
+## Stack
+- Symfony 8
+- PHP 8.4+
+## Stack
+- Symfony 8
+- PHP 8.4+
+## Stack
+- Symfony 8
+- PHP 8.4+
 Symfony bundle with NTFY-related UI, routes, and maintenance commands for Easy Stack.
 
 Features:
