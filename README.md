@@ -1,43 +1,27 @@
 # Easy Stack Ntfy Bundle
 
+Symfony-Bundle fuer ntfy-Integration in Easy-Stack-Anwendungen. Es liefert Chat-UI, Commands, Fixtures, Twig-Views und wiederverwendbare Assets fuer Benachrichtigungen und Kontaktformulare.
 
+## Was hat das?
 
+- EasyAdmin-Menuepunkt und Route fuer eine ntfy-Chat-Oberflaeche.
+- Commands fuer Senden, Synchronisieren und ZIP-Upload an ntfy.
+- Optionale CronJob-Fixtures fuer `ntfy:sync` und `ntfy:zip-and-send`.
+- Twig-Templates und Uebersetzungen fuer die Admin-Ansicht.
+- Wiederverwendbares Contact-Popup-JavaScript fuer statische Webseiten.
+- Docker-Beispiele fuer einen lokalen ntfy-Service.
+- Route- und Menue-Provider mit Guards fuer fehlende ntfy-Konfiguration.
 
+## Was brauche ich?
 
-
-## Stack
-- Symfony 8
-- PHP 8.4+
-## Stack
-- Symfony 8
-- PHP 8.4+
-## Stack
-- Symfony 8
-- PHP 8.4+
-## Stack
-- Symfony 8
-- PHP 8.4+
-## Stack
-- Symfony 8
-- PHP 8.4+
-Symfony bundle with NTFY-related UI, routes, and maintenance commands for Easy Stack.
-
-Features:
-
-- EasyAdmin menu entry for NTFY chat.
-- Route and controller to serve the chat interface.
-- Twig template for the chat view.
-- Reusable contact popup asset for websites.
-- Reusable Docker examples for running a local ntfy service.
-- NTFY commands:
-  - `ntfy:send`
-  - `ntfy:sync`
-  - `ntfy:zip-and-send`
-- Optional cron job fixtures for the two periodic jobs:
-  - `ntfy:sync` (every 30 seconds)
-  - `ntfy:zip-and-send` (every hour)
-
-The chat menu item is only shown when required environment variables are present.
+- PHP >= 8.4.
+- Symfony 8 Anwendung mit Easy-Stack-Konventionen.
+- EasyAdmin 5.
+- Twig fuer die Chat-Ansicht.
+- Guzzle fuer HTTP-Requests an ntfy.
+- Einen erreichbaren ntfy-Server, z. B. selbst gehostet oder `https://ntfy.sh`.
+- Host-Parameter `app_locales`, z. B. `de|en`, fuer lokalisierte Admin-Routen.
+- Optional: DoctrineFixturesBundle, wenn CronJob-Fixtures geladen werden sollen.
 
 ## Installation
 
@@ -45,85 +29,78 @@ The chat menu item is only shown when required environment variables are present
 composer require opillion/easy-stack-ntfy-bundle
 ```
 
-If you need bundle assets in a Symfony app:
+Falls Assets veroeffentlicht werden sollen:
 
 ```bash
 php bin/console assets:install public
 ```
 
-If not using Symfony Flex, enable the bundle in `config/bundles.php`:
+Falls Symfony Flex das Bundle nicht automatisch registriert:
 
 ```php
+// config/bundles.php
 return [
     Opillion\EasyStack\NtfyBundle\EasyStackNtfyBundle::class => ['all' => true],
 ];
 ```
 
-## Environment
+## Komponenten
 
-The bundle binds the ntfy service values from environment variables. The chat route and EasyAdmin menu are removed when one of the guarded chat variables is missing or empty.
+| Komponente | Aufgabe |
+| --- | --- |
+| `Controller` | Chat-Route und Controller fuer EasyAdmin. |
+| `Command` | `ntfy:send`, `ntfy:sync`, `ntfy:zip-and-send`. |
+| `DataHolder/DataFixtures` | Optionale CronJob-Fixtures fuer periodische ntfy-Jobs. |
+| `Resources/templates` | Twig-View fuer die Chat-Oberflaeche. |
+| `Resources/public/js/contact-popup.js` | Wiederverwendbares Contact-Popup fuer Webseiten. |
+| `System/EasyAdmin` | EasyAdmin-Menueintegration. |
+| `System/Routing` | Routenbereitstellung mit Konfigurations-Guards. |
+| `resources/docker` | Docker-Beispiele fuer ntfy. |
 
-| Variable | Required for | Notes |
-| --- | --- | --- |
-| `NTFY_HOST` | All ntfy requests, chat route, chat menu | Base URL of the ntfy server, for example `https://ntfy.sh`. |
-| `NTFY_TOKEN` | Authenticated requests, chat route, chat menu | Sent as `Authorization: Bearer ...` when present. The current route/menu guard expects a non-empty value. |
-| `NTFY_CHAT` | Chat route, chat menu, `ntfy:sync` | Chat topic shown in the bundled EasyAdmin chat UI. |
-| `NTFY_ZIP_PROTECTION` | Chat route, chat menu, `ntfy:zip-and-send` | Used as ZIP password when non-empty. The current route/menu guard expects a value. |
-| `NTFY_TOPIC` | `ntfy:send`, `ntfy:sync` | Default topic for CLI sends and one of the topics polled by sync. |
-| `NTFY_TOPIC_WEB` | `ntfy:sync`, static contact popup | Optional extra topic for website/contact events. |
+## Environment-Variablen
 
-The localized chat route also expects the host application's `%app_locales%` parameter:
-
-```yaml
-parameters:
-    app_locales: 'de|en'
+```dotenv
+NTFY_HOST=https://ntfy.sh
+NTFY_TOKEN=
+NTFY_CHAT=
+NTFY_ZIP_PROTECTION=
+NTFY_TOPIC=
+NTFY_TOPIC_WEB=
 ```
 
-## Commands
+| Variable | Pflicht | Zweck |
+| --- | --- | --- |
+| `NTFY_HOST` | ja | Basis-URL des ntfy-Servers. |
+| `NTFY_TOKEN` | fuer Chat/UI ja | Bearer Token fuer authentifizierte Requests. Die aktuelle Chat-/Menue-Guard erwartet einen Wert. |
+| `NTFY_CHAT` | fuer Chat/UI ja | Topic der EasyAdmin-Chat-Oberflaeche und eines der Sync-Topics. |
+| `NTFY_ZIP_PROTECTION` | fuer Chat/UI und ZIP-Upload ja | Passwort fuer ZIP-Dateien; die aktuelle Chat-/Menue-Guard erwartet einen Wert. |
+| `NTFY_TOPIC` | fuer `ntfy:send` und `ntfy:sync` | Default-Topic fuer CLI-Sends und Sync. |
+| `NTFY_TOPIC_WEB` | optional | Zusaetzliches Topic fuer Website-/Kontakt-Events. |
 
-Send a plain text message:
+Fehlen die geschuetzten Chat-Variablen, werden Chat-Route und Menueeintrag entfernt.
+
+## Nutzung
+
+Nachricht senden:
 
 ```bash
 bin/console ntfy:send "Hello from Easy Stack"
 bin/console ntfy:send "Hello from Easy Stack" --topic=ops
 ```
 
-Synchronize all configured topics (`NTFY_TOPIC`, `NTFY_TOPIC_WEB`, `NTFY_CHAT`):
+Konfigurierte Topics synchronisieren:
 
 ```bash
 bin/console ntfy:sync
 ```
 
-Zip one file and upload it to ntfy. The optional topic argument defaults to `dumps`; `--title` controls the ntfy upload title.
+Datei zippen und an ntfy hochladen:
 
 ```bash
 bin/console ntfy:zip-and-send var/backups/dump.sql dumps --title="Database dump"
 ```
 
-## Symfony Integration
-
-The bundle extension prepends:
-
-- Twig namespace `@EasyStackNtfyBundle`.
-- Translation path `src/Resources/translations`.
-
-The service file binds:
-
-- `?string $ntfyHost` from `NTFY_HOST`.
-- `?string $ntfyToken` from `NTFY_TOKEN`.
-- `?string $ntfyChatTopic` from `NTFY_CHAT`.
-- `?string $ntfyZipProtection` from `NTFY_ZIP_PROTECTION`.
-
-If DoctrineFixturesBundle is installed, the bundle registers fixtures for the periodic `ntfy:sync` and `ntfy:zip-and-send` CronJobs.
-
-## Reusable Resources
-
-The bundle also ships reusable assets and examples:
-
-- Contact popup script: `src/Resources/public/js/contact-popup.js`
-- Docker examples: `resources/docker/`
-
-For static pages you can wire the popup like this after publishing assets:
+Contact-Popup nach `assets:install` in statische Seiten einbinden:
 
 ```html
 <script
@@ -133,4 +110,11 @@ For static pages you can wire the popup like this after publishing assets:
   data-ntfy-title="Neue Kontaktanfrage"
   data-ntfy-tags="contact,website"
 ></script>
+```
+
+## Tests
+
+```bash
+composer install
+vendor/bin/phpunit
 ```
