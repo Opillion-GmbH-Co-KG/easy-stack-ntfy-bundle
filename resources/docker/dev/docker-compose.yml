@@ -15,8 +15,8 @@ services:
     ports:
       - "${NTFY_EXTERNAL_PORT}:${NTFY_INTERNAL_PORT}"
     volumes:
-      - ${NTFY_DATA_PATH:-ntfy-data}/cache:/var/cache/ntfy
-      - ${NTFY_DATA_PATH:-ntfy-data}/etc/user.db:/etc/ntfy/user.db
+      - ${NTFY_DATA_PATH:-./ntfy-data}/cache:/var/cache/ntfy
+      - ${NTFY_DATA_PATH:-./ntfy-data}/etc/user.db:/var/lib/ntfy/user.db
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:${NTFY_INTERNAL_PORT}/v1/health || exit 1"]
       interval: 16s

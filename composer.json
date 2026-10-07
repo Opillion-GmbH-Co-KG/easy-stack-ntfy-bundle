@@ -1,12 +1,26 @@
 {
     "name": "opillion/easy-stack-ntfy-bundle",
-    "description": "Symfony bundle for ntfy integration in Easy Stack applications.",
+    "description": "Symfony bundle for ntfy notifications, chat, uploads and contact forms in Easy Stack applications.",
     "type": "symfony-bundle",
-    "license": "proprietary",
+    "license": "GPL-3.0-or-later",
+    "keywords": [
+        "easyadmin",
+        "notifications",
+        "ntfy",
+        "symfony",
+        "symfony-bundle"
+    ],
+    "homepage": "https://github.com/Opillion-GmbH-Co-KG/easy-stack-ntfy-bundle",
+    "support": {
+        "issues": "https://github.com/Opillion-GmbH-Co-KG/easy-stack-ntfy-bundle/issues",
+        "source": "https://github.com/Opillion-GmbH-Co-KG/easy-stack-ntfy-bundle"
+    },
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
         "php": ">=8.4",
+        "ext-fileinfo": "*",
+        "ext-zip": "*",
         "doctrine/data-fixtures": "^2.2",
         "doctrine/dbal": "^4.2",
         "doctrine/doctrine-fixtures-bundle": "^4.3",
